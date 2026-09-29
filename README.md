@@ -1,158 +1,198 @@
-# FitSense AI / FitTrack AI Backend
+# 🏋️‍♂️ FitSense AI — Fitness Tracking & Intelligent Workout Backend API
 
-A secure, scalable RESTful backend API for fitness tracking and AI-driven personalized workout recommendations and insights built with **Node.js, Express.js, MongoDB, Mongoose, JWT, bcrypt.js, and Google Gemini AI**.
+[![Node.js Version](https://img.shields.io/badge/node.js-v18%2B-green.svg)](https://nodejs.org/)
+[![Express.js](https://img.shields.io/badge/express.js-v4.21.2-blue.svg)](https://expressjs.com/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-v8.x-brightgreen.svg)](https://www.mongodb.com/)
+[![JWT Auth](https://img.shields.io/badge/auth-JWT%20%2B%20bcrypt-orange.svg)](https://jwt.io/)
+[![Google Gemini AI](https://img.shields.io/badge/AI-Google%20Gemini%203.8%20Flash-purple.svg)](https://aistudio.google.com/)
+[![License: ISC](https://img.shields.io/badge/License-ISC-yellow.svg)](https://opensource.org/licenses/ISC)
 
----
-
-## Table of Contents
-
-- [Problem Statement](#problem-statement)
-- [Key Features](#key-features)
-- [Tech Stack](#tech-stack)
-- [Architecture & Folder Structure](#architecture--folder-structure)
-- [Prerequisites](#prerequisites)
-- [Installation & Setup](#installation--setup)
-- [Environment Variables](#environment-variables)
-- [Starting MongoDB](#starting-mongodb)
-- [Running the Server](#running-the-server)
-- [API Endpoint Documentation](#api-endpoint-documentation)
-  - [Authentication Routes](#authentication-routes)
-  - [Workout Management Routes](#workout-management-routes)
-  - [AI Features Routes](#ai-features-routes)
-- [Postman & API Testing Guide](#postman--api-testing-guide)
-- [Google Gemini Integration](#google-gemini-integration)
-- [Security Features](#security-features)
-- [Future Enhancements](#future-enhancements)
+> A production-grade, secure RESTful backend API built with **Node.js, Express.js, MongoDB (Mongoose), JWT authentication, bcrypt.js, and Google Gemini AI**. FitSense AI empowers users to log workouts, track fitness history, perform multi-criteria searches, and generate personalized, AI-driven exercise routines and analytical insights.
 
 ---
 
-## Problem Statement
+## 📌 Table of Contents
 
-Modern fitness applications require more than static record-keeping. Users need personalized guidance, intelligent feedback, and secure data isolation. **FitSense AI Backend** solves these challenges by combining robust JWT-authenticated workout tracking with Google Gemini AI capabilities to provide actionable exercise plans and progress feedback.
-
----
-
-## Key Features
-
-- **User Authentication**: Secure registration and login using bcrypt password hashing and JWT authorization.
-- **Protected Profiles**: Authenticated user profile retrieval.
-- **Workout Management (CRUD)**: Create, read all, read by ID, update, and delete workout records.
-- **Multi-criteria Search**: Filter user workouts by name, category, and date.
-- **Strict User Isolation**: Multi-tenant authorization checks ensuring users can only manage their own workouts.
-- **AI Workout Recommendations**: Google Gemini powered custom routine generation based on user goals, age, and experience level.
-- **AI Fitness Insights**: Intelligent statistical analysis of performance, duration, and calories burned with actionable tips.
-- **Centralized Error Handling**: Unified standard JSON error response handler covering validation errors, invalid ObjectIds, duplicate records, and authentication failures.
-
----
-
-## Tech Stack
-
-- **Runtime**: Node.js
-- **Framework**: Express.js
-- **Database**: MongoDB with Mongoose ODM
-- **Authentication**: JSON Web Tokens (`jsonwebtoken`), `bcryptjs`
-- **AI Integration**: `@google/generative-ai` (Google Gemini 1.5 / 2.0 Flash)
-- **Utilities**: `dotenv`, `cors`, `nodemon`
+- [Problem Statement](#-problem-statement)
+- [✨ Key Features](#-key-features)
+- [🛠️ Tech Stack](#️-tech-stack)
+- [📐 Architecture & Design Pattern](#-architecture--design-pattern)
+- [📂 Directory Structure](#-directory-structure)
+- [⚡ Quick Start & Setup](#-quick-start--setup)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+  - [Environment Variables](#environment-variables)
+  - [Running the Database](#running-the-database)
+  - [Starting the Application](#starting-the-application)
+- [🚀 Live Demo Script](#-live-demo-script)
+- [📖 API Reference Documentation](#-api-reference-documentation)
+  - [Authentication Endpoints](#1-authentication-endpoints)
+  - [Workout Management Endpoints](#2-workout-management-endpoints)
+  - [Google Gemini AI Endpoints](#3-google-gemini-ai-endpoints)
+- [🧪 Postman Testing Guide](#-postman-testing-guide)
+- [🔒 Security & Best Practices](#-security--best-practices)
+- [🔮 Future Roadmap](#-future-roadmap)
 
 ---
 
-## Architecture & Folder Structure
+## 💡 Problem Statement
 
-Follows a strict **Model-View-Controller (MVC)** architecture with separate layers for services, middleware, utilities, and configuration.
+Traditional fitness apps often act as passive digital logbooks, storing static numbers without offering actionable, personalized advice. Modern users demand:
+1. **Intelligent Guidance**: Tailored exercise routines accounting for age, experience level, and specific goals.
+2. **Actionable Performance Analysis**: Analytical evaluation of duration, total volume, and calorie expenditure.
+3. **Data Security & Isolation**: Strict user-level data segregation preventing unauthorized access across accounts.
 
-```text
-fitsense/
-├── server/
-│   ├── config/
-│   │   └── db.js                 # Database connection logic
-│   ├── controllers/
-│   │   ├── authController.js     # User registration, login, profile
-│   │   ├── workoutController.js  # Workout CRUD & search logic
-│   │   └── aiController.js       # Gemini AI recommendations & insights
-│   ├── middleware/
-│   │   ├── authMiddleware.js     # JWT Bearer token authentication check
-│   │   └── errorMiddleware.js    # Global centralized error handler
-│   ├── models/
-│   │   ├── User.js               # Mongoose User model & password sanitization
-│   │   └── Workout.js            # Mongoose Workout model with user ref
-│   ├── routes/
-│   │   ├── authRoutes.js         # /api/auth routes
-│   │   ├── workoutRoutes.js      # /api/workouts routes
-│   │   └── aiRoutes.js           # /api/ai routes
-│   ├── services/
-│   │   ├── geminiService.js      # Google Gemini API integration
-│   │   ├── jwtService.js         # JWT signing & verification helpers
-│   │   └── passwordService.js    # bcrypt hashing & comparison
-│   ├── utils/
-│   │   └── response.js           # Standardized API response formatters
-│   ├── .env                      # Environment variables
-│   ├── .env.example              # Environment variables template
-│   ├── .gitignore                # Git ignore configuration
-│   ├── package.json              # Project dependencies & scripts
-│   └── server.js                 # Express application entrypoint
-└── README.md                     # Documentation & setup guide
+**FitSense AI** addresses these challenges by uniting robust JWT-authenticated workout management with real-time Google Gemini AI integration.
+
+---
+
+## ✨ Key Features
+
+- 🔐 **Secure Authentication**: User registration and login using salted bcrypt password hashing (`10 rounds`) and JWT bearer authorization.
+- 👤 **User Profiles**: Protected user profile retrieval with automatic sensitive field masking (`password` removed from responses).
+- 🏋️ **Workout Management (CRUD)**: Create, read all, read by ID, update, and delete workout records.
+- 🔍 **Multi-Criteria Search**: Dynamic regex and date-range searching by workout name, category, and specific date.
+- 🛡️ **Strict User Isolation**: Authorization guards ensuring users can only view, modify, or delete their own workouts.
+- 🤖 **AI Workout Recommendations**: Personalized workout routines, exercise breakdowns, safety tips, and motivational guidance generated dynamically via Google Gemini AI.
+- 📊 **AI Fitness Insights**: Intelligent statistical analysis evaluating user effort, volume, calorie burn rates, and progression milestones.
+- 🚨 **Centralized Error Handling**: Unified standard JSON error response handler covering validation failures, invalid ObjectIds (`CastError`), duplicate email keys (`11000`), JWT authentication errors, and API service timeouts.
+
+---
+
+## 🛠️ Tech Stack
+
+- **Runtime Engine**: [Node.js](https://nodejs.org/) (v18+)
+- **Web Framework**: [Express.js](https://expressjs.com/) (v4.21.2)
+- **Database & ODM**: [MongoDB](https://www.mongodb.com/) & [Mongoose](https://mongoosejs.com/) (v8.12.0)
+- **Authentication**: [JSON Web Token (JWT)](https://jwt.io/) & [bcryptjs](https://github.com/dcodeIO/bcrypt.js)
+- **AI Model Engine**: [Google Generative AI SDK](https://www.npmjs.com/package/@google/generative-ai) (`@google/generative-ai` with `gemini-3.8-flash`)
+- **Environment & Middleware**: `dotenv`, `cors`, `nodemon`
+
+---
+
+## 📐 Architecture & Design Pattern
+
+The application strictly adheres to the **Model-View-Controller (MVC)** architectural pattern combined with a modular **Service Layer** to maintain clean separation of concerns.
+
+```mermaid
+flowchart TD
+    Client["Client / React App / Postman"]
+    Router["Express Routes (/api/auth, /api/workouts, /api/ai)"]
+    AuthMW["JWT Auth Middleware (authMiddleware.js)"]
+    Controller["Controllers (authController, workoutController, aiController)"]
+    Service["Services Layer (jwtService, passwordService, geminiService)"]
+    Model["Mongoose Models (User, Workout)"]
+    DB[(MongoDB Database)]
+    GeminiAPI["Google Gemini AI API"]
+
+    Client -->|HTTP Request| Router
+    Router --> AuthMW
+    AuthMW -->|Attach req.user| Controller
+    Controller --> Service
+    Controller --> Model
+    Model --> DB
+    Service -->|AI Prompt Request| GeminiAPI
+    GeminiAPI -->|Structured Response| Service
+    Controller -->|Standardized JSON| Client
 ```
 
 ---
 
-## Prerequisites
+## 📂 Directory Structure
 
-- **Node.js** (v18.x or higher)
-- **npm** (v9.x or higher)
-- **MongoDB** (Local instance or MongoDB Atlas URI)
-- **Google Gemini API Key** (Obtainable from [Google AI Studio](https://aistudio.google.com/))
+```text
+fitsense/
+├── config/
+│   └── db.js                 # Database connection logic
+├── controllers/
+│   ├── aiController.js       # AI recommendation & insights handler
+│   ├── authController.js     # User registration, login, profile logic
+│   └── workoutController.js  # Workout CRUD & search handlers
+├── middleware/
+│   ├── authMiddleware.js     # Bearer JWT verification & user guard
+│   └── errorMiddleware.js    # Global centralized error handler
+├── models/
+│   ├── User.js               # Mongoose User schema & output sanitization
+│   └── Workout.js            # Mongoose Workout schema with User ref
+├── routes/
+│   ├── aiRoutes.js           # /api/ai endpoint definitions
+│   ├── authRoutes.js         # /api/auth endpoint definitions
+│   └── workoutRoutes.js      # /api/workouts endpoint definitions
+├── services/
+│   ├── geminiService.js      # Google Gemini API integration with model fallback
+│   ├── jwtService.js         # JWT signing & verification service
+│   └── passwordService.js    # bcrypt hashing & comparison service
+├── utils/
+│   └── response.js           # Standardized JSON response formatters
+├── .env                      # Local environment secrets
+├── .env.example              # Environment variables template
+├── .gitignore                # Git ignore rules
+├── demo.js                   # Automated end-to-end demo script
+├── package.json              # Project dependencies & scripts
+├── server.js                 # Express application entry point
+└── README.md                 # Documentation & setup guide
+```
 
 ---
 
-## Installation & Setup
+## ⚡ Quick Start & Setup
 
-1. **Clone or open the repository**:
+### Prerequisites
+
+- **Node.js**: v18.x or higher installed. Check version:
+  ```bash
+  node -v
+  ```
+- **MongoDB**: Installed locally or a valid [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) connection URI.
+- **Google Gemini API Key**: Free API key from [Google AI Studio](https://aistudio.google.com/).
+
+### Installation
+
+1. **Clone the repository**:
    ```bash
-   cd fitsense/server
+   git clone https://github.com/SSDP-codes/FitSenseAPI.git
+   cd FitSenseAPI
    ```
 
-2. **Install dependencies**:
+2. **Install node dependencies**:
    ```bash
    npm install
    ```
 
-3. **Configure Environment Variables**:
-   Copy `.env.example` to `.env`:
-   ```bash
-   cp .env.example .env
-   ```
-   Edit `.env` and fill in your secrets and API keys:
-   ```env
-   PORT=5000
-   MONGO_URI=mongodb://localhost:27017/aifittrack
-   JWT_SECRET=your_secure_jwt_secret_key
-   GEMINI_API_KEY=your_actual_gemini_api_key
-   ```
+### Environment Variables
 
----
+Create a `.env` file in the project root:
 
-## Starting MongoDB
+```bash
+cp .env.example .env
+```
 
-If using a local MongoDB installation:
+Configure your `.env` file with your credentials:
+
+```env
+PORT=5000
+MONGO_URI=mongodb://localhost:27017/aifittrack
+JWT_SECRET=your_super_secret_jwt_key_here
+GEMINI_API_KEY=AIzaSy_your_google_gemini_api_key_here
+GEMINI_MODEL=gemini-3.8-flash
+```
+
+> ⚠️ **Note**: Do not commit your `.env` file to source control. `.env` is listed in `.gitignore`.
+
+### Running the Database
+
 - **Windows**:
   ```powershell
   net start MongoDB
   ```
-  Or launch `mongod` directly.
 - **macOS / Linux**:
   ```bash
   sudo systemctl start mongod
   ```
-  Or via Homebrew:
-  ```bash
-  services start mongodb-community
-  ```
 
----
+### Starting the Application
 
-## Running the Server
-
-- **Development Mode (with auto-reload)**:
+- **Development Mode (with Nodemon auto-reload)**:
   ```bash
   npm run dev
   ```
@@ -161,17 +201,40 @@ If using a local MongoDB installation:
   npm start
   ```
 
-Server will start at `http://localhost:5000`.
+The server will start listening at `http://localhost:5000`.
 
 ---
 
-## API Endpoint Documentation
+## 🚀 Live Demo Script
 
-### Authentication Routes
+The repository includes a ready-to-use automated testing script that executes a complete end-to-end demonstration in the terminal:
 
-#### 1. Register User
-- **Endpoint**: `POST /api/auth/register`
-- **Access**: Public
+1. Keep your server running (`npm run dev`).
+2. Open a second terminal window in the project root and run:
+   ```bash
+   npm run demo
+   ```
+
+It will automatically execute and format outputs for:
+- Health check
+- User registration & login
+- Profile fetch
+- Creating workouts
+- Search workouts by category
+- Updating workout records
+- Generating live Google Gemini AI workout plans
+- Generating live Google Gemini AI insights
+- Verifying 401 Unauthorized access guard
+
+---
+
+## 📖 API Reference Documentation
+
+### 1. Authentication Endpoints
+
+#### Register User
+`POST /api/auth/register` (Public)
+
 - **Request Body**:
   ```json
   {
@@ -180,23 +243,23 @@ Server will start at `http://localhost:5000`.
     "password": "password123"
   }
   ```
-- **Response** (201 Created):
+- **Response** (`201 Created`):
   ```json
   {
     "success": true,
     "message": "User registered successfully",
     "user": {
-      "id": "670c1a9f...",
+      "id": "670c1a9f8b2d1c3a4e5f6a7b",
       "name": "John Doe",
       "email": "john@example.com",
-      "createdAt": "2026-09-26T15:00:00.000Z"
+      "createdAt": "2026-09-29T14:00:00.000Z"
     }
   }
   ```
 
-#### 2. Login User
-- **Endpoint**: `POST /api/auth/login`
-- **Access**: Public
+#### Login User
+`POST /api/auth/login` (Public)
+
 - **Request Body**:
   ```json
   {
@@ -204,75 +267,77 @@ Server will start at `http://localhost:5000`.
     "password": "password123"
   }
   ```
-- **Response** (200 OK):
+- **Response** (`200 OK`):
   ```json
   {
     "success": true,
     "message": "Login successful",
-    "token": "eyJhbGciOiJIUzI1NiIsIn...",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
     "user": {
-      "id": "670c1a9f...",
+      "id": "670c1a9f8b2d1c3a4e5f6a7b",
       "name": "John Doe",
       "email": "john@example.com"
     }
   }
   ```
 
-#### 3. Get User Profile
-- **Endpoint**: `GET /api/auth/profile`
-- **Access**: Protected (`Authorization: Bearer <JWT_TOKEN>`)
-- **Response** (200 OK):
+#### Get Current Profile
+`GET /api/auth/profile` (Protected — Requires `Authorization: Bearer <token>`)
+
+- **Response** (`200 OK`):
   ```json
   {
     "success": true,
     "message": "User profile retrieved successfully",
     "user": {
-      "id": "670c1a9f...",
+      "id": "670c1a9f8b2d1c3a4e5f6a7b",
       "name": "John Doe",
       "email": "john@example.com",
-      "createdAt": "2026-09-26T15:00:00.000Z"
+      "createdAt": "2026-09-29T14:00:00.000Z"
     }
   }
   ```
 
 ---
 
-### Workout Management Routes
+### 2. Workout Management Endpoints
 
-All workout endpoints require `Authorization: Bearer <JWT_TOKEN>`.
+> All workout endpoints require header `Authorization: Bearer <token>`.
 
-#### 4. Create Workout
-- **Endpoint**: `POST /api/workouts`
+#### Create Workout
+`POST /api/workouts`
+
 - **Request Body**:
   ```json
   {
     "workoutName": "Morning Running",
     "category": "Cardio",
     "duration": 45,
-    "caloriesBurned": 350,
-    "workoutDate": "2026-09-26"
+    "caloriesBurned": 380,
+    "workoutDate": "2026-09-29"
   }
   ```
-- **Response** (201 Created):
+- **Response** (`201 Created`):
   ```json
   {
     "success": true,
     "message": "Workout created successfully",
     "data": {
-      "id": "670c2b1a...",
-      "user": "670c1a9f...",
+      "id": "670c2b1a9f8b2d1c3a4e5f6c",
+      "user": "670c1a9f8b2d1c3a4e5f6a7b",
       "workoutName": "Morning Running",
       "category": "Cardio",
       "duration": 45,
-      "caloriesBurned": 350,
-      "workoutDate": "2026-09-26T00:00:00.000Z"
+      "caloriesBurned": 380,
+      "workoutDate": "2026-09-29T00:00:00.000Z"
     }
   }
   ```
 
-#### 5. Get All Workouts
-- **Endpoint**: `GET /api/workouts`
-- **Response** (200 OK):
+#### Get All Workouts
+`GET /api/workouts`
+
+- **Response** (`200 OK`):
   ```json
   {
     "success": true,
@@ -281,9 +346,10 @@ All workout endpoints require `Authorization: Bearer <JWT_TOKEN>`.
   }
   ```
 
-#### 6. Search Workouts
-- **Endpoint**: `GET /api/workouts/search?name=running&category=Cardio&date=2026-09-26`
-- **Response** (200 OK):
+#### Search Workouts
+`GET /api/workouts/search?name=running&category=Cardio&date=2026-09-29`
+
+- **Response** (`200 OK`):
   ```json
   {
     "success": true,
@@ -292,9 +358,10 @@ All workout endpoints require `Authorization: Bearer <JWT_TOKEN>`.
   }
   ```
 
-#### 7. Get Workout by ID
-- **Endpoint**: `GET /api/workouts/:id`
-- **Response** (200 OK):
+#### Get Workout by ID
+`GET /api/workouts/:id`
+
+- **Response** (`200 OK`):
   ```json
   {
     "success": true,
@@ -303,144 +370,131 @@ All workout endpoints require `Authorization: Bearer <JWT_TOKEN>`.
   }
   ```
 
-#### 8. Update Workout
-- **Endpoint**: `PUT /api/workouts/:id`
+#### Update Workout
+`PUT /api/workouts/:id`
+
 - **Request Body**:
   ```json
   {
     "duration": 50,
-    "caloriesBurned": 400
-  }
-  ```
-- **Response** (200 OK):
-  ```json
-  {
-    "success": true,
-    "message": "Workout updated successfully",
-    "data": { ... }
+    "caloriesBurned": 420
   }
   ```
 
-#### 9. Delete Workout
-- **Endpoint**: `DELETE /api/workouts/:id`
-- **Response** (200 OK):
+#### Delete Workout
+`DELETE /api/workouts/:id`
+
+- **Response** (`200 OK`):
   ```json
   {
     "success": true,
     "message": "Workout deleted successfully",
-    "data": { "id": "670c2b1a..." }
+    "data": { "id": "670c2b1a9f8b2d1c3a4e5f6c" }
   }
   ```
 
 ---
 
-### AI Features Routes
+### 3. Google Gemini AI Endpoints
 
-All AI endpoints require `Authorization: Bearer <JWT_TOKEN>`.
+> All AI endpoints require header `Authorization: Bearer <token>`.
 
-#### 10. AI Workout Recommendation
-- **Endpoint**: `POST /api/ai/recommendation`
+#### Generate AI Workout Recommendation
+`POST /api/ai/recommendation`
+
 - **Request Body**:
   ```json
   {
     "age": 25,
-    "fitnessGoal": "Weight loss",
+    "fitnessGoal": "Weight loss & muscle definition",
     "experienceLevel": "Beginner"
   }
   ```
-- **Response** (200 OK):
+- **Response** (`200 OK`):
   ```json
   {
     "success": true,
     "message": "AI workout recommendation generated successfully",
     "data": {
-      "workoutPlan": "Personalized 4-week fat loss and endurance routine...",
+      "workoutPlan": "A balanced 4-day workout plan emphasizing high-volume cardio and progressive bodyweight resistance training...",
       "weeklySchedule": [
-        "Day 1: 30 min brisk walk + bodyweight squats",
-        "Day 2: Rest & light stretching"
+        "Day 1: Upper body resistance + light walk",
+        "Day 2: Lower body & core routine"
       ],
       "suggestedExercises": [
-        { "name": "Bodyweight Squats", "sets": "3", "repsOrDuration": "12 reps", "description": "Lower body strength exercise" }
+        {
+          "name": "Bodyweight Squats",
+          "sets": "3",
+          "repsOrDuration": "15 reps",
+          "description": "Essential lower body movement targeting quadriceps and glutes."
+        }
       ],
-      "trainingTips": ["Stay hydrated", "Maintain consistent sleep"],
-      "safetyRecommendations": ["Warm up 5 mins before exercising"],
-      "motivationalGuidance": "Every step forward counts towards your goal!",
+      "trainingTips": ["Maintain proper form", "Stay hydrated"],
+      "safetyRecommendations": ["Warm up for 8-10 minutes before starting"],
+      "motivationalGuidance": "Every single workout brings you closer to your personal best!",
       "disclaimer": "This recommendation is general fitness guidance and not a substitute for professional medical advice."
     }
   }
   ```
 
-#### 11. AI Fitness Insights
-- **Endpoint**: `POST /api/ai/insights`
+#### Generate AI Fitness Insights
+`POST /api/ai/insights`
+
 - **Request Body**:
   ```json
   {
     "totalWorkouts": 15,
-    "averageWorkoutDuration": 42,
-    "caloriesBurned": 5250
+    "averageWorkoutDuration": 45,
+    "caloriesBurned": 5500
   }
   ```
-- **Response** (200 OK):
+- **Response** (`200 OK`):
   ```json
   {
     "success": true,
     "message": "AI fitness insights generated successfully",
     "data": {
-      "performanceAnalysis": "Excellent consistency averaging over 40 mins per session...",
-      "improvementSuggestions": ["Incorporate high-intensity interval training (HIIT)", "Track macro intake"],
-      "motivationalAdvice": "You are building remarkable endurance habits!",
-      "fitnessProgressSummary": "15 workouts completed with over 5000 kcal burned."
+      "performanceAnalysis": "Completing 15 sessions averaging 45 minutes demonstrates exceptional consistency...",
+      "improvementSuggestions": ["Incorporate High-Intensity Interval Training (HIIT)"],
+      "motivationalAdvice": "You have established strong training momentum!",
+      "fitnessProgressSummary": "15 workouts completed with over 5,500 kcal burned."
     }
   }
   ```
 
 ---
 
-## Postman & API Testing Guide
+## 🧪 Postman Testing Guide
 
-### Execution Order:
-1. **Register**: `POST /api/auth/register`
-2. **Login**: `POST /api/auth/login` -> Copy the returned `token`.
-3. **Set Authorization Header**: In Postman, add header `Authorization: Bearer <token>` for all protected requests.
-4. **Get Profile**: `GET /api/auth/profile`
-5. **Create Workout**: `POST /api/workouts`
-6. **Get All Workouts**: `GET /api/workouts`
-7. **Search Workouts**: `GET /api/workouts/search?name=running`
-8. **Get Workout by ID**: `GET /api/workouts/<workoutId>`
-9. **Update Workout**: `PUT /api/workouts/<workoutId>`
-10. **Delete Workout**: `DELETE /api/workouts/<workoutId>`
-11. **Get AI Recommendation**: `POST /api/ai/recommendation`
-12. **Get AI Insights**: `POST /api/ai/insights`
+To test using Postman or Thunder Client, follow this sequence:
 
-### Failure Case Testing:
-- Send request without `Authorization` header -> 401 Unauthorized (`Access denied. No token provided.`)
-- Register duplicate email -> 409 Conflict (`User already exists with this email address`)
-- Get non-existent workout ID -> 404 Not Found (`Workout not found`)
-- Send invalid Mongo ID string -> 400 Bad Request (`Invalid format for field: _id`)
-- Access another user's workout ID -> 403 Forbidden (`Forbidden: You do not have permission...`)
+1. **Register**: Send `POST /api/auth/register` with user credentials.
+2. **Login**: Send `POST /api/auth/login`. Copy the returned `token`.
+3. **Set Token**: In Postman, navigate to `Authorization` -> Select `Bearer Token` -> Paste the token.
+4. **Test CRUD & Search**:
+   - Create workouts via `POST /api/workouts`.
+   - List history via `GET /api/workouts`.
+   - Filter via `GET /api/workouts/search?category=Cardio`.
+5. **Test AI Engine**:
+   - Send prompt payload to `POST /api/ai/recommendation`.
+   - Send statistical data to `POST /api/ai/insights`.
+6. **Test Failure Scenarios**:
+   - Omit token -> `401 Unauthorized`.
+   - Query invalid ObjectId -> `400 Bad Request`.
+   - Query another user's workout ID -> `403 Forbidden`.
 
 ---
 
-## Google Gemini Integration
+## 🔒 Security & Best Practices
 
-The project integrates with `@google/generative-ai` SDK via `services/geminiService.js`.
-- Prompts are dynamically compiled and enforce structured JSON output.
-- Medical safety disclaimers are automatically attached to exercise suggestions.
-
----
-
-## Security Features
-
-- **Password Hashing**: Salted bcrypt password hashing (10 rounds). Passwords are excluded from JSON output (`toJSON` transform).
-- **JWT Authorization**: Stateless JWT verification middleware.
-- **Resource Ownership Enforcement**: Every workout query enforces `user: req.user._id`.
-- **Sanitized Errors**: Database internal stack traces are hidden from client responses.
+- **Salted Password Hashing**: Passwords are encrypted using `bcryptjs` with salt rounds = `10`.
+- **JWT Authentication**: Stateless token verification attached to incoming requests via Bearer middleware.
+- **Resource Ownership Verification**: Queries enforce `user: req.user._id` to prevent vertical and horizontal privilege escalation.
+- **Data Protection**: Mongoose `toJSON` transforms automatically strip sensitive password hashes.
+- **API Key Safeguards**: Gemini API keys are isolated within environment variables and excluded from source control.
 
 ---
 
-## Future Enhancements
+## 📄 License
 
-- Refresh token strategy.
-- Password reset via email OTP.
-- Pagination for workout history.
-- Dynamic data aggregation for AI insights directly from user database logs.
+This project is licensed under the **ISC License**.
