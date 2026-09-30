@@ -1,4 +1,4 @@
-# 🏋️‍♂️ FitSense AI — Fitness Tracking & Intelligent Workout Backend API
+# 🏋️‍♂️ FitTrack AI — Fitness Tracking & Intelligent Workout Backend API
 
 [![Node.js Version](https://img.shields.io/badge/node.js-v18%2B-green.svg)](https://nodejs.org/)
 [![Express.js](https://img.shields.io/badge/express.js-v4.21.2-blue.svg)](https://expressjs.com/)
@@ -42,7 +42,7 @@ Traditional fitness apps often act as passive digital logbooks, storing static n
 2. **Actionable Performance Analysis**: Analytical evaluation of duration, total volume, and calorie expenditure.
 3. **Data Security & Isolation**: Strict user-level data segregation preventing unauthorized access across accounts.
 
-**FitSense AI** addresses these challenges by uniting robust JWT-authenticated workout management with real-time Google Gemini AI integration.
+**FitTrack AI** addresses these challenges by uniting robust JWT-authenticated workout management with real-time Google Gemini AI integration.
 
 ---
 
